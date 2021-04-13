@@ -100,7 +100,7 @@ module.exports = {
         '@typescript-eslint/no-unsafe-return': 'off', // 26 errors, similar to above
         '@typescript-eslint/no-unsafe-call': 'off', // 24 errors, need types for imported constructors
         '@typescript-eslint/restrict-template-expressions': 'off', // 294 errors, forces template literals to be a certain type
-        '@typescript-eslint/no-floating-promises': 'off', // 274 errors, promises should catch errors or be awaited
+        '@typescript-eslint/no-floating-promises': 'error', // 274 errors, promises should catch errors or be awaited
         '@typescript-eslint/ban-ts-comment': 'off', // 27 errors, bans compiler error exceptions
         '@typescript-eslint/explicit-module-boundary-types': 'off', // Remove this once 'explicit-function-return-type' is on
         // Do not check loops so while(true) works. Potentially reevalute this.
