@@ -219,14 +219,24 @@ class ObjectEditor {
     }
 
     private async createTab(storage: vscode.Memento | vscode.SecretStorage, key: string): Promise<Tab> {
-        const uri = this.uriFromKey(key, storage)
-        const disposable = this.fs.registerProvider(uri, new VirtualObjectFile(storage, key))
-        const document = await vscode.workspace.openTextDocument(uri)
+        const virtualFile = new VirtualObjectFile(storage, key)
+        let disposable: vscode.Disposable
+        let document: vscode.TextDocument
+        if (key !== '') {
+            const uri = this.uriFromKey(key, storage)
+            disposable = this.fs.registerProvider(uri, virtualFile)
+            document = await vscode.workspace.openTextDocument(uri)
+        } else {
+            // don't tie it to a URI so you can't save this view
+            const stream = await virtualFile.read()
+            document = await vscode.workspace.openTextDocument({
+                content: new TextDecoder().decode(stream),
+            })
+        }
         const withLanguage = await vscode.languages.setTextDocumentLanguage(document, 'json')
-        const editor = await vscode.window.showTextDocument(withLanguage)
 
         return {
-            editor,
+            editor: await vscode.window.showTextDocument(withLanguage),
             dispose: () => disposable.dispose(),
         }
     }
@@ -266,13 +276,6 @@ async function openStorageFromInput(ctx: ExtContext) {
                     const items = ctx.extensionContext.globalState
                         .keys()
                         .map(key => {
-                            if (key === '') {
-                                // a blank key shows up by default? may as well use it
-                                return {
-                                    data: '',
-                                    label: "SHOW ALL (edits here won't write to global state)",
-                                }
-                            }
                             return {
                                 label: key,
                                 data: key,
@@ -281,6 +284,10 @@ async function openStorageFromInput(ctx: ExtContext) {
                         .sort((a, b) => {
                             return a.data.localeCompare(b.data)
                         })
+                    items.unshift({
+                        data: '',
+                        label: "SHOW ALL (edits here won't write to global state)",
+                    })
 
                     return createQuickPick(items, { title: 'Pick a global state key' })
                 } else {
