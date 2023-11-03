@@ -240,7 +240,7 @@ class ObjectEditor {
     }
 }
 
-async function openStorageFromInput() {
+async function openStorageFromInput(ctx: ExtContext) {
     const wizard = new (class extends Wizard<{ target: 'globals' | 'secrets'; key: string }> {
         constructor() {
             super()
@@ -257,12 +257,36 @@ async function openStorageFromInput() {
                 )
             )
 
-            this.form.key.bindPrompter(({ target }) =>
-                createInputBox({
-                    title: 'Enter a key',
-                    placeholder: target === 'globals' ? 'region' : '',
-                })
-            )
+            this.form.key.bindPrompter(({ target }) => {
+                if (target === 'secrets') {
+                    return createInputBox({
+                        title: 'Enter a key',
+                    })
+                } else if (target === 'globals') {
+                    const items = ctx.extensionContext.globalState
+                        .keys()
+                        .map(key => {
+                            if (key === '') {
+                                // a blank key shows up by default? may as well use it
+                                return {
+                                    data: '',
+                                    label: "SHOW ALL (edits here won't write to global state)",
+                                }
+                            }
+                            return {
+                                label: key,
+                                data: key,
+                            }
+                        })
+                        .sort((a, b) => {
+                            return a.data.localeCompare(b.data)
+                        })
+
+                    return createQuickPick(items, { title: 'Pick a global state key' })
+                } else {
+                    throw new Error('invalid storage target')
+                }
+            })
         }
     })()
 
