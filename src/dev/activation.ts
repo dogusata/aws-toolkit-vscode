@@ -157,7 +157,12 @@ class VirtualObjectFile implements FileProvider {
             const value = (await this.storage.get(key)) ?? ''
             return JSON.stringify(JSON.parse(value), undefined, 4)
         } else {
-            return JSON.stringify(this.storage.get(key, {}), undefined, 4)
+            if (key !== '') {
+                return JSON.stringify(this.storage.get(key, {}), undefined, 4)
+            }
+            // lol hax
+            // as of November 2023, all of a memento's properties are stored as property `f` when minified
+            return JSON.stringify((this.storage as any).f, undefined, 4)
         }
     }
 
