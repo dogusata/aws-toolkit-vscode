@@ -761,7 +761,7 @@ export const AuthSources = {
     vscodeComponent: vscodeComponent,
     cwQuickPick: cwQuickPickSource,
     cwTreeNode: cwTreeNodeSource,
-    authNode: 'authNode'
+    authNode: 'authNode',
 } as const
 
 export type AuthSource = (typeof AuthSources)[keyof typeof AuthSources]
