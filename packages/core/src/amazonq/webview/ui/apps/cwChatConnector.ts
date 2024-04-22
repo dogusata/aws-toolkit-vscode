@@ -19,6 +19,7 @@ export interface ConnectorProps {
     onMessageReceived?: (tabID: string, messageData: any, needToShowAPIDocsTab: boolean) => void
     onChatAnswerReceived?: (tabID: string, message: ChatItem) => void
     onCWCContextCommandMessage: (message: ChatItem, command?: string) => string | undefined
+    onCWCEndMessageStream: (tabId: string, messageId: string) => { totalCodeBlocks: number } | undefined
     onError: (tabID: string, message: string, title: string) => void
     onWarning: (tabID: string, message: string, title: string) => void
     tabsStorage: TabsStorage
@@ -30,6 +31,7 @@ export class Connector {
     private readonly onWarning
     private readonly onChatAnswerReceived
     private readonly onCWCContextCommandMessage
+    private readonly onCWCEndMessageStream
     private readonly followUpGenerator: FollowUpGenerator
 
     constructor(props: ConnectorProps) {
@@ -38,7 +40,22 @@ export class Connector {
         this.onWarning = props.onWarning
         this.onError = props.onError
         this.onCWCContextCommandMessage = props.onCWCContextCommandMessage
+        this.onCWCEndMessageStream = props.onCWCEndMessageStream
         this.followUpGenerator = new FollowUpGenerator()
+    }
+
+    onEndMessageStreamCompleted = (
+        tabId: string,
+        messageId: string,
+        renderDetails: { totalCodeBlocks: number }
+    ): void => {
+        this.sendMessageToExtension({
+            command: 'end-message-stream-completed',
+            tabId,
+            messageId,
+            renderDetails,
+            tabType: 'cwc',
+        })
     }
 
     onSourceLinkClick = (tabID: string, messageId: string, link: string): void => {
@@ -336,6 +353,14 @@ export class Connector {
 
         if (messageData.type === 'chatMessage') {
             await this.processChatMessage(messageData)
+            return
+        }
+
+        if (messageData.type === 'endStream') {
+            const renderDetails = this.onCWCEndMessageStream(messageData?.tabID, messageData?.messageID)
+            if (renderDetails) {
+                this.onEndMessageStreamCompleted(messageData?.tabID, messageData?.messageID, renderDetails)
+            }
             return
         }
 

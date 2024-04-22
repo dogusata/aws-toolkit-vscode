@@ -9,6 +9,7 @@ import {
     AuthNeededException,
     CodeReference,
     EditorContextCommandMessage,
+    EndStreamMessage,
     OnboardingPageInteractionMessage,
     QuickActionMessage,
 } from '../../../view/connector/connector'
@@ -188,6 +189,7 @@ export class Messenger {
                         })
                     }
                 }
+                this.dispatcher.sendEndStreamessage(new EndStreamMessage({ messageID }, tabID))
                 return true
             },
             { timeout: 60000, truthy: true }
@@ -263,6 +265,7 @@ export class Messenger {
                     messageLength: message.length,
                     messageID,
                     responseCode,
+                    totalNumberOfCodeBlocksInResponse: 0, // TODO: move this from here to 'end-message-stream-completed' in messageListener
                     codeReferenceCount: codeReference.length,
                 })
             })

@@ -121,6 +121,10 @@ export const createMynahUI = (ideApi: any, amazonQEnabled: boolean) => {
                 return messageController.sendMessageToTab(message, 'cwc')
             }
         },
+        onCWCEndMessageStream: (tabId: string, messageId: string): { totalCodeBlocks: number } => {
+            const renderDetails = mynahUI.endMessageStream(tabId, messageId)
+            return renderDetails as { totalCodeBlocks: number }
+        },
         onWelcomeFollowUpClicked: (tabID: string, welcomeFollowUpType: WelcomeFollowupType) => {
             followUpsInteractionHandler.onWelcomeFollowUpClicked(tabID, welcomeFollowUpType)
         },
@@ -144,6 +148,7 @@ export const createMynahUI = (ideApi: any, amazonQEnabled: boolean) => {
                 if (message && messageId) {
                     mynahUI.updateChatAnswerWithMessageId(tabID, messageId, {
                         body: message,
+                        messageId,
                     })
                 } else if (message) {
                     mynahUI.updateLastChatAnswer(tabID, {

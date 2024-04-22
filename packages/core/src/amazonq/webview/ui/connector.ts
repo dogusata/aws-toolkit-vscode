@@ -38,6 +38,7 @@ export interface ConnectorProps {
     onAsyncEventProgress: (tabID: string, inProgress: boolean, message: string | undefined) => void
     onQuickHandlerCommand: (tabID: string, command?: string, eventId?: string) => void
     onCWCContextCommandMessage: (message: ChatItem, command?: string) => string | undefined
+    onCWCEndMessageStream: (tabID: string, messageId: string) => { totalCodeBlocks: number } | undefined
     onCWCOnboardingPageInteractionMessage: (message: ChatItem) => string | undefined
     onError: (tabID: string, message: string, title: string) => void
     onWarning: (tabID: string, message: string, title: string) => void
@@ -78,6 +79,18 @@ export class Connector {
         switch (this.tabsStorage.getTab(tabID)?.type) {
             case 'cwc':
                 this.cwChatConnector.onSourceLinkClick(tabID, messageId, link)
+                break
+        }
+    }
+
+    onEndMessageStreamCompleted = (
+        tabId: string,
+        messageId: string,
+        renderDetails: { totalCodeBlocks: number }
+    ): void => {
+        switch (this.tabsStorage.getTab(tabId)?.type) {
+            case 'cwc':
+                this.cwChatConnector.onEndMessageStreamCompleted(tabId, messageId, renderDetails)
                 break
         }
     }

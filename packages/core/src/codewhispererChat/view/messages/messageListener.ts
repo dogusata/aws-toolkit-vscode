@@ -98,6 +98,10 @@ export class UIMessageListener {
             case 'footer-info-link-click':
                 this.processFooterInfoLinkClick(msg)
                 break
+            case 'end-message-stream-completed':
+                // TODO create telemetry record for stream ended on UI and record number of code blocks generated with it
+                console.log(msg.renderDetails)
+                break
         }
     }
 

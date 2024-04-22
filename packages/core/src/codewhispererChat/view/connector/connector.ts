@@ -165,6 +165,19 @@ export class ChatMessage extends UiMessage {
     }
 }
 
+export interface EndStreamMessageProps {
+    readonly messageID: string
+}
+export class EndStreamMessage extends UiMessage {
+    readonly messageID: string | undefined
+    override type = 'endStream'
+
+    constructor(props: EndStreamMessageProps, tabID: string) {
+        super(tabID)
+        this.messageID = props.messageID
+    }
+}
+
 export interface FollowUp {
     readonly type: string
     readonly pillText: string
@@ -236,6 +249,10 @@ export class AppToWebViewMessageDispatcher {
     }
 
     public sendChatMessage(message: ChatMessage) {
+        this.appsToWebViewMessagePublisher.publish(message)
+    }
+
+    public sendEndStreamessage(message: EndStreamMessage) {
         this.appsToWebViewMessagePublisher.publish(message)
     }
 
