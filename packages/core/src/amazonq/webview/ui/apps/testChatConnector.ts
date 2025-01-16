@@ -107,15 +107,37 @@ export class Connector extends BaseConnector {
     }
 
     onFileDiff = (tabID: string, filePath: string, deleted: boolean, messageId?: string): void => {
-        // TODO: add this back once we can advance flow from here
-        // this.sendMessageToExtension({
-        //     command: 'open-diff',
-        //     tabID,
-        //     filePath,
-        //     deleted,
-        //     messageId,
-        //     tabType: 'testgen',
-        // })
+        // DO SEND YOUR FILE DIFF OPEN REQUEST AS IS
+        // But we will also update the UI directly from here, to remove the ViewDiff followup button and replace it with
+        // To do that, the onCHatAnswerReceived handler function takes care of the structure depending on the message type.
+        // But you also have another option here, instead of updating the existing message, when you send a new message just with the followups,
+        // it will remove the last followups automatically.
+        // Only one set of followups can be shown at a time.
+        this.onChatAnswerReceived?.(
+            tabID,
+            {
+                type: ChatItemType.ANSWER_PART, // OR CAN BE ChatItemType.ANSWER too
+                messageId: messageId, // IN CASE IF YOU WANT TO UPDATE THE EXISTING MESSAGE, LEAVE EMPTY OTHERWISE
+                followUp: {
+                    text: 'YOUR TITLE',
+                    options: [
+                        {
+                            type: 'accept-diff', // OR WHATEVER YOUR ID is
+                            pillText: 'Accept',
+                            status: 'success',
+                            icon: MynahIcons.OK,
+                        },
+                        {
+                            type: 'reject-diff', // OR WHATEVER YOUR ID is
+                            pillText: 'Reject',
+                            status: 'error',
+                            icon: MynahIcons.REVERT,
+                        },
+                    ],
+                },
+            },
+            {}
+        )
     }
 
     private processChatMessage = async (messageData: any): Promise<void> => {

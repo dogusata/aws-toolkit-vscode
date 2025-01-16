@@ -338,6 +338,8 @@ export const createMynahUI = (
             }
         },
         onChatAnswerReceived: (tabID: string, item: CWCChatItem, messageData: any) => {
+            // As you can see, depending on the chat item type,
+            // it updates the chat item, instead of creating a new one
             if (item.type === ChatItemType.ANSWER_PART || item.type === ChatItemType.CODE_RESULT) {
                 mynahUI.updateLastChatAnswer(tabID, {
                     ...(item.messageId !== undefined ? { messageId: item.messageId } : {}),

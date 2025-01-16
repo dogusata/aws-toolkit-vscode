@@ -579,6 +579,7 @@ export class Connector {
                 this.featureDevChatConnector.onOpenDiff(tabID, filePath, deleted, messageId)
                 break
             case 'testgen':
+                // Since you're falling here
                 this.testChatConnector.onFileDiff(tabID, filePath, deleted, messageId)
                 break
             case 'review':
